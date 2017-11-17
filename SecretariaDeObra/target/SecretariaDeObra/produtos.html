@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR" ng-app="produtoModulo">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="icon" href="img/favicon.ico">
+
+<title>Produtos</title>
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/carousel.css" rel="stylesheet">
+<link href="css/estilos.css" rel="stylesheet">
+<link rel="stylesheet" href="css/sweetalert.css">
+
+<script src="js/angular.js"></script>
+<script src="controller/produto.js"></script>
+</head>
+
+<body ng-app="produtoModulo">
+
+	<div ng-include src="'menu.html'"></div>
+	<div ng-controller="ProdutoController as controller">
+		<div class="container">
+
+			<!-- Nav tabs -->
+			<ul class="nav nav-tabs" role="tablist">
+				<li role="presentation" class="active"><a href="#lista"
+					aria-controls="lista" role="tab" data-toggle="tab">Lista de
+						Produtos</a></li>
+				<li role="presentation"><a href="#dados" aria-controls="dados"
+					role="tab" data-toggle="tab">Dados</a></li>
+				<li role="presentation"><a href="#tributos"
+					aria-controls="tributos" role="tab" data-toggle="tab">Tributos</a></li>
+			</ul>
+
+			<!-- Tab panes -->
+			<div class="tab-content">
+				<div role="tabpanel" class="tab-pane active" id="lista">
+					<br> <label>Pesquisar:</label> <input type="text"
+						ng-model="controller.pesquisaProduto" id="pesquisa"
+						placeholder="Digite aqui..."> <br> <br>
+
+					<div class="container">
+						<table class="table table-striped table-hover">
+							<th class="col-sm-2 ">Código</th>
+							<th class="col-sm-6">Descrição</th>
+							<th class="col-sm-2">EAN</th>
+							<th class="col-sm-2">Preço</th>
+							<tr
+								dir-paginate="produtoTabela in controller.produtos | filter:controller.pesquisaProduto |itemsPerPage:8"
+								ng-dblclick="controller.selecionarProduto(produtoTabela)">
+								<td>{{produtoTabela.codigo}}</td>
+								<td>{{produtoTabela.descricao}}</td>
+								<td>{{produtoTabela.ean}}</td>
+								<td>R$ {{produtoTabela.precoVenda}}</td>
+								<td>
+									<button type="button" data-toggle="tooltip" title="Excluir ?"
+										ng-click="controller.removeRow(produtoTabela)"
+										class="btn btn-xs btn-danger">
+										<i class="glyphicon glyphicon-remove-circle"> </i>
+									</button>
+								</td>
+							</tr>
+						</table>
+					</div>
+
+				</div>
+
+				<div role="tabpanel" class="tab-pane" id="dados">
+					<br>
+					<form name="formDados" class="form-horizontal">
+
+						<div class="form-group">
+							<label for="codigo" class="col-sm-1 control-label">Código:</label>
+							<div class="col-sm-2">
+								<input type="text" required ng-model="controller.produto.codigo"
+									class="form-control" id="codigo" placeholder="Código">
+							</div>
+							<label for="descricao" class="col-sm-1 control-label">Descrição:</label>
+							<div class="col-sm-6">
+								<input type="text" required
+									ng-model="controller.produto.descricao" class="form-control"
+									id="descricao" placeholder="Descrição">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="marca" class="col-sm-1 control-label">Marca:</label>
+							<div class="col-sm-6">
+								<input type="text" required ng-model="controller.produto.marca"
+									class="form-control" id="marca" placeholder="Marca">
+							</div>
+							<label for="garantia" class="col-sm-1 control-label">Garantia:</label>
+							<div class="col-sm-2">
+								<input type="text" required
+									ng-model="controller.produto.garantia" class="form-control"
+									id="garantia" placeholder="Garantia">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="ean" class="col-sm-1 control-label">EAN:</label>
+							<div class="col-sm-6">
+								<input type="text" required ng-model="controller.produto.ean"
+									class="form-control" id="ean" placeholder="EAN">
+							</div>
+							<label class="col-sm-1 control-label">Estoque:</label>
+							<div class="col-sm-2">
+								<input type="text" ng-model="controller.produto.estoque"
+									name="estoque" required class="form-control"
+									placeholder="Estoque">
+							</div>
+							<!-- 							<div role="alert"> -->
+							<!-- 								<span class="error" ng-show="formDados.estoque.$error.required"> -->
+							<!-- 									*</span> -->
+							<!-- 							</div> -->
+						</div>
+
+						<div class="form-group">
+							<label for="unidade" class="col-sm-1 control-label">Unidade:</label>
+							<div class="col-sm-4">
+								<select class="form-control"
+									ng-model="controller.produto.unidade"
+									ng-options="unidade.codigo + ' - ' + unidade.descricao for unidade in controller.unidades track by unidade.id">
+
+								</select>
+							</div>
+							<label for="genero" class="col-sm-1 control-label">Gênero:</label>
+							<div class="col-sm-4">
+								<select class="form-control"
+									ng-model="controller.produto.genero"
+									ng-options="genero.codigo + ' - ' + genero.descricao for genero in controller.generos track by genero.id">
+
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="ncm" class="col-sm-1 control-label">NCM:</label>
+							<div class="col-sm-4">
+								<select class="form-control" ng-model="controller.produto.ncm"
+									ng-options="ncm.codigo + ' - ' + ncm.descricao for ncm in controller.ncms track by ncm.id">
+
+								</select>
+							</div>
+							<label for="cest" class="col-sm-1 control-label">CEST:</label>
+							<div class="col-sm-4">
+								<select class="form-control" ng-model="controller.produto.cest"
+									ng-options="cest.codigo + ' - ' + cest.descricao for cest in controller.cests track by cest.id">
+
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-1 control-label">Observação:</label>
+							<div class="col-sm-9">
+								<textarea class="form-control"
+									ng-model="controller.produto.observacao" rows="3"></textarea>
+							</div>
+						</div>
+
+					</form>
+				</div>
+
+				<div role="tabpanel" class="tab-pane" id="tributos">
+					<br>
+					<form class="form-horizontal">
+						<div class="form-group">
+							<label for="origem" class="col-sm-1 control-label">Origem(0/1):</label>
+							<div class="col-sm-1">
+								<input type="text" required ng-model="controller.produto.origem"
+									class="form-control" id="origem"
+									placeholder="Origem do Produto">
+							</div>
+							<label for="precocompra" class="col-sm-2 control-label">Preço
+								Compra:</label>
+							<div class="col-sm-2">
+								<input type="text" ng-model="controller.produto.precoCompra"
+									money-mask money-mask-prepend="R$" class="form-control"
+									id="precocompra" placeholder="Preço da Compra">
+							</div>
+							<label for="precovenda" class="col-sm-2 control-label">Preço
+								Venda:</label>
+							<div class="col-sm-2">
+								<input type="text" required money-mask money-mask-prepend="R$"
+									ng-model="controller.produto.precoVenda" class="form-control"
+									id="precovenda" placeholder="Preço da Venda">
+							</div>
+						</div>
+
+						<div class="form-group">
+
+							<label for="peso" class="col-sm-1 control-label">Peso(9.999):</label>
+							<div class="col-sm-1">
+								<input type="text" required ng-model="controller.produto.peso"
+									class="form-control" id="peso" placeholder="Peso">
+							</div>
+							<label for="csticms" class="col-sm-2 control-label">CST
+								ICMS(xxx):</label>
+							<div class="col-sm-2">
+								<input type="text" required
+									ng-model="controller.produto.icmsCst" class="form-control"
+									id="csticms" placeholder="Cst Icms/Csosn">
+							</div>
+							<label for="percentualicms" class="col-sm-2 control-label">%
+								ICMS:</label>
+							<div class="col-sm-2">
+								<input type="text" required
+									ng-model="controller.produto.icmsPerc" class="form-control"
+									id="percentualicms" placeholder="%Icms">
+							</div>
+						</div>
+
+						<div class="form-group">
+
+							<label for="percentualicmsred" class="col-sm-1 control-label">%ICMS(Red):</label>
+							<div class="col-sm-1">
+								<input type="text" required
+									ng-model="controller.produto.icmsPercRed" class="form-control"
+									id="percentualicmsred" placeholder="% ICMS R.">
+							</div>
+							<label for="cstipi" class="col-sm-2 control-label">CST
+								IPI(xx):</label>
+							<div class="col-sm-2">
+								<input type="text" required ng-model="controller.produto.ipiCst"
+									class="form-control" id="cstipi" placeholder="Cst Ipi">
+							</div>
+							<label for="percentualipi" class="col-sm-2 control-label">%
+								IPI:</label>
+							<div class="col-sm-2">
+								<input type="text" required
+									ng-model="controller.produto.ipiPerc" class="form-control"
+									id="percentualipi" placeholder="% Ipi">
+							</div>
+						</div>
+
+						<div class="form-group">
+
+							<label for="cstpis" class="col-sm-2 control-label">CST
+								PIS(xx):</label>
+							<div class="col-sm-2">
+								<input type="text" required ng-model="controller.produto.pisCst"
+									class="form-control" id="cstpis" placeholder="Cst Pis.">
+							</div>
+							<label class="col-sm-2 control-label">% PIS:</label>
+							<div class="col-sm-2">
+								<input type="text" required
+									ng-model="controller.produto.pisPerc" class="form-control"
+									placeholder="% Pis">
+							</div>
+						</div>
+
+						<div class="form-group">
+
+							<label class="col-sm-2 control-label">CST COFINS(xx):</label>
+							<div class="col-sm-2">
+								<input type="text" required
+									ng-model="controller.produto.cofinsCst" class="form-control"
+									placeholder="Cst Cofins">
+							</div>
+							<label class="col-sm-2 control-label">% COFINS:</label>
+							<div class="col-sm-2">
+								<input type="text" required
+									ng-model="controller.produto.cofinsPerc" class="form-control"
+									placeholder="% Cofins">
+							</div>
+						</div>
+
+					</form>
+				</div>
+
+				<div class="form-group" class="form-horizontal">
+					<dir-pagination-controls class="col-sm-6 control-label"
+						max-size="8" direction-links="true" boundary-links="true">
+					</dir-pagination-controls>
+
+					<div align="center" class="form-group"
+						class="col-sm-6 control-label">
+						<button type="submit" ng-click="controller.novo()"
+							class="btn btn-default">Novo</button>
+						<button data-target="#modal-mensagem" data-toggle="modal"
+							ng-disabled="!controller.produto.descricao || !controller.produto.codigo || !controller.produto.estoque || !controller.produto.unidade || !controller.produto.genero || !controller.produto.ncm || !controller.produto.cest"
+							type="submit" ng-click="controller.salvar()"
+							class="btn btn-primary">Salvar</button>
+
+						<button type="submit"
+							ng-disabled="!controller.produto.descricao || !controller.produto.codigo || !controller.produto.estoque || !controller.produto.unidade || !controller.produto.genero || !controller.produto.ncm || !controller.produto.cest"
+							data-ng-click="controller.deletar(produtoSelecionado)"
+							class="btn btn-danger">Excluir</button>
+					</div>
+				</div>
+
+				<div class="modal fade" id="modal-mensagem">
+					<div class="modal-dialog">
+						<div
+							ng-class="controller.alerts[0].type === 'success' ? 'alert alert-success' : 'alert alert-danger'"
+							role="alert">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<strong ng-repeat="alert in controller.alerts">{{alert.msg}}</strong>
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+		</div>
+
+	</div>
+	<div ng-include src="'footer.html'"></div>
+
+	<script
+		src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/dirPagination.js"></script>
+	<script src="js/sweetalert-dev.js"></script>
+	<script src="js/rw-money-mask.min.js"></script>
+
+	<!--<script>
+		function moeda(z) {
+			v = z.value;
+			v = v.replace(/\D/g, "") // permite digitar apenas numero
+			v = v.replace(/(\d{1})(\d{14})$/, "$1.$2") // coloca ponto antes dos ultimos digitos
+			v = v.replace(/(\d{1})(\d{11})$/, "$1.$2") // coloca ponto antes dos ultimos 11 digitos
+			v = v.replace(/(\d{1})(\d{8})$/, "$1.$2") // coloca ponto antes dos ultimos 8 digitos
+			v = v.replace(/(\d{1})(\d{5})$/, "$1.$2") // coloca ponto antes dos ultimos 5 digitos
+			v = v.replace(/(\d{1})(\d{1,2})$/, "$1,$2") // coloca virgula antes dos ultimos 2 digitos
+			z.value = v;
+		}
+	</script> -->
+
+</body>
+</html>

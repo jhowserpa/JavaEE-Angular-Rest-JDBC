@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR" ng-app="controlModulo">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="icon" href="img/favicon.ico">
+
+<title>Secretaria de Obra</title>
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/carousel.css" rel="stylesheet">
+<link href="css/estilos.css" rel="stylesheet">
+<link rel="stylesheet" href="css/sweetalert.css">
+
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script data-require="angular.js@1.5.x"
+	src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.10/angular.min.js"
+	data-semver="1.5.10"></script>
+
+<script src="js/tableExport.js"></script>
+<script src="js/jquery.base64.js"></script>
+<script src="js/sprintf.js"></script>
+<script src="js/jspdf.js"></script>
+<script src="js/base64.js"></script>
+
+<script src="js/angular.js"></script>
+<script src="controller/control.js"></script>
+</head>
+
+<body ng-app="controlModulo">
+
+	<div ng-include src="'menu.html'"></div>
+	<div ng-controller="ControlController as controller">
+		<div class="container">
+
+			<!-- Nav tabs -->
+			<ul class="nav nav-tabs" role="tablist">
+				<li role="presentation" class="active"><a href="#lista"
+					aria-controls="lista" role="tab" data-toggle="tab">Controle</a></li>
+				<li role="presentation"><a href="#dados" aria-controls="dados"
+					role="tab" data-toggle="tab">Dados</a></li>
+			</ul>
+
+			<!-- Tab panes -->
+			<div class="tab-content">
+				<div role="tabpanel" class="tab-pane active" id="lista">
+					<br> <label>Pesquisar:</label> <input type="text"
+						ng-model="controller.pesquisaControle" id="pesquisa"
+						placeholder="Digite aqui...">
+					<!-- 					<button class="btn btn-info" data-ng-click="exportAction('csv')" -->
+					<!-- 						data-toggle="tooltip" title="Exportar para Excel ?">CSV</button> -->
+					<button class="btn btn-warning"
+						data-ng-click="exportAction('excel')" data-toggle="tooltip"
+						title="Exportar para Excel ?">Excel</button>
+					<button class="btn btn-info" data-ng-click="exportAction('doc')"
+						data-toggle="tooltip" title="Exportar para Documento ?">Doc</button>
+					<button class="btn btn-danger" data-ng-click="exportAction('pdf')"
+						data-toggle="tooltip" title="Exportar para PDF ?">Pdf</button>
+					<br> <br>
+
+					<div class="container">
+						<table class="table table-striped table-hover export-table"
+							style="width: 100%; margin-top: 20px">
+							<th class="col-sm-2">Status</th>
+							<th class="col-sm-3">Funcionario</th>
+							<th class="col-sm-2">Ferramentas</th>
+							<th class="col-sm-2">Data Saída</th>
+							<th class="col-sm-2">Data Devolução</th>
+							<tr
+								dir-paginate="controleTabela in controller.controles | filter:controller.pesquisaControle |itemsPerPage:8"
+								ng-dblclick="controller.selecionarControle(controleTabela)">
+								<td style="color: {{controleTabela.status== 'DEVOLVIDO'?'#800080':'#191970'}}">{{controleTabela.status}}</td>
+								<td style="color: {{controleTabela.status== 'DEVOLVIDO'?'#800080':'#191970'}}">{{controleTabela.funcionario.nome}}</td>
+								<td style="color: {{controleTabela.status== 'DEVOLVIDO'?'#800080':'#191970'}}">{{controleTabela.ferramentas}}</td>
+								<td style="color: {{controleTabela.status== 'DEVOLVIDO'?'#800080':'#191970'}}">{{controleTabela.dataSaida | date: 'dd-MM-yyyy hh:mm:ss'}}</td>
+								<td style="color: {{controleTabela.status== 'DEVOLVIDO'?'#800080':'#191970'}}">{{controleTabela.dataDevolucao | date: 'dd-MM-yyyy' }}</td>
+								<td>
+									<button type="button" data-toggle="tooltip" title="Excluir ?"
+										ng-click="controller.removeRow(controleTabela)"
+										class="btn btn-xs btn-danger">
+										<i class="glyphicon glyphicon-remove-circle"> </i>
+									</button>
+								</td>
+							</tr>
+						</table>
+						<export-to-pdf elem-id="table"></export-to-pdf>
+					</div>
+
+				</div>
+
+				<div role="tabpanel" class="tab-pane" id="dados">
+					<br>
+					<form class="form-horizontal">
+
+						<div class="form-group">
+							<label for="status" class="col-sm-2 control-label">Status:</label>
+							<div class="col-sm-2">
+								<select class="form-control" required
+									ng-model="controller.controle.status">
+									<option>PENDENTE</option>
+									<option>DEVOLVIDO</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Funcionario:</label>
+							<div class="col-sm-8">
+								<select class="form-control" required
+									ng-model="controller.controle.funcionario"
+									ng-options="funcionario.nome + ' - ' + funcionario.cpf for funcionario in controller.funcionarios track by funcionario.id">
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="status" class="col-sm-2 control-label">Maquinas:</label>
+							<div class="col-sm-3">
+								<select class="form-control" required
+									ng-model="controller.controle.maquina">
+									<option value="0">-- Selecione aqui --</option>
+									<option>Excavadoras de Ruedas</option>
+									<option>Excavadoras de Cadenas</option>
+									<option>Retrocargadoras</option>
+									<option>Palas Cargadoras</option>
+									<option>Carretilhas</option>
+								</select>
+							</div>
+
+							<label class="col-sm-2 control-label">Ferramentas:</label>
+							<div class="col-sm-3">
+								<input type="text" required
+									ng-model="controller.controle.ferramentas" class="form-control"
+									placeholder="Ferramentas">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<!-- 							<label class="col-sm-2 control-label">Data Saída:</label> -->
+							<!-- 							<div class="col-sm-3"> -->
+							<!-- 								<div class="input-group date"> -->
+							<!-- 									<input ui-date-format="dd/mm/yyyy" name="data" -->
+							<!-- 										onKeyPress="MascaraData(form1.data);" maxlength="10" -->
+							<!-- 										onBlur="ValidaDataform1.data);" type="text" -->
+							<!-- 										ng-model="controller.controle.dataSaida" class="form-control" -->
+							<!-- 										id="data" placeholder="Data Saída"> -->
+							<!-- 									<div class="input-group-addon"> -->
+							<!-- 										<span class="glyphicon glyphicon-th"></span> -->
+							<!-- 									</div> -->
+							<!-- 								</div> -->
+							<!-- 							</div> -->
+
+							<label class="col-sm-2 control-label">Data Devolução:</label>
+							<div class="col-sm-3">
+								<div class="input-group date">
+									<input type="date" name="eventDate" ng-model="controller.controle.dataDevolucao"
+										class="form-control" placeholder="Data Devolução">
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="municipio" class="col-sm-2 control-label">Município:</label>
+							<div class="col-sm-3">
+								<select class="form-control" id="municipio" required
+									ng-model="controller.controle.municipio"
+									ng-options="municipio.nome + ' - ' + municipio.uf.sigla for municipio in controller.municipios track by municipio.id">
+								</select>
+							</div>
+
+							<label  for="carro"
+								class="col-sm-2 control-label">Carro:</label> <!-- ng-if="controller.controle.maquina == '0'" -->
+							<div class="col-sm-3"><!-- ng-if="controller.controle.maquina == '0'" -->
+								<select name="carro" class="form-control" id="carro" required
+									ng-model="controller.controle.carro"
+									ng-options="carro.nome + ' - ' + carro.placa for carro in controller.carros track by carro.id">
+									 <option value="0" selected>-- Selecione aqui --</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label">KM Sáida:</label>
+							<div class="col-sm-3">
+								<input type="text" required
+									ng-model="controller.controle.kmSaida" class="form-control"
+									placeholder="KM Sáida">
+							</div>
+
+							<label class="col-sm-2 control-label">KM Chegada:</label>
+							<div class="col-sm-3">
+								<input type="text" required
+									ng-model="controller.controle.kmChegada" class="form-control"
+									placeholder="KM Chegada">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Observação:</label>
+							<div class="col-sm-8">
+								<textarea class="form-control"
+									ng-model="controller.controle.observacao" rows="2"></textarea>
+							</div>
+						</div>
+					</form>
+				</div>
+
+				<div class="form-group" class="form-horizontal">
+					<dir-pagination-controls class="col-sm-6 control-label"
+						max-size="8" direction-links="true" boundary-links="true">
+					</dir-pagination-controls>
+
+					<div align="center" class="form-group"
+						class="col-sm-6 control-label">
+						<!-- 						<button type="submit" ng-click="controller.imprimir()" -->
+						<!-- 							class="btn btn-default">Imprimir</button> -->
+
+						<button type="submit" ng-click="controller.novo()"
+							class="btn btn-default">Novo</button>
+						<button data-target="#modal-mensagem" data-toggle="modal"
+							ng-disabled="!controller.controle.funcionario || !controller.controle.status"
+							type="submit" ng-click="controller.salvar()"
+							class="btn btn-primary">Salvar</button>
+
+						<button type="submit"
+							ng-disabled="!controller.controle.funcionario || !controller.controle.status"
+							data-ng-click="controller.deletar(cestSelecionado)"
+							class="btn btn-danger">Excluir</button>
+
+					</div>
+				</div>
+
+				<div class="modal fade" id="modal-mensagem">
+					<div class="modal-dialog">
+						<div
+							ng-class="controller.alerts[0].type === 'success' ? 'alert alert-success' : 'alert alert-danger'"
+							role="alert">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<strong ng-repeat="alert in controller.alerts">{{alert.msg}}</strong>
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+		</div>
+
+	</div>
+	<div ng-include src="'footer.html'"></div>
+
+	<script
+		src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/dirPagination.js"></script>
+	<script src="js/sweetalert-dev.js"></script>
+
+	<script src="js/bootstrap-datepicker.min.js"></script>
+	<script src="js/bootstrap-datepicker.pt-BR.min.js"></script>
+
+	<script type="text/javascript">
+		$('#data').datepicker({
+			format : 'dd/mm/yyyy',
+			language : 'pt-BR',
+		// 			startDate : '+0d',
+		});
+	</script>
+
+</body>
+</html>

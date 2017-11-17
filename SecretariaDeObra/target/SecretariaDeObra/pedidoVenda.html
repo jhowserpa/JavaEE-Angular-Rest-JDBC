@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR" ng-app="pedidoVendaModulo">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="icon" href="img/favicon.ico">
+
+<title>Pedido de Venda</title>
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/carousel.css" rel="stylesheet">
+<link href="css/estilos.css" rel="stylesheet">
+<link rel="stylesheet" href="css/sweetalert.css">
+
+<script src="js/angular.js"></script>
+<script src="controller/pedidoVenda.js"></script>
+</head>
+
+<body ng-app="pedidoVendaModulo">
+
+	<div ng-include src="'menu.html'"></div>
+	<div ng-controller="pedidoVendaController as controller">
+		<div class="container">
+
+			<!-- Nav tabs -->
+			<ul class="nav nav-tabs" role="tablist">
+				<li role="presentation" class="active"><a href="#lista"
+					aria-controls="lista" role="tab" data-toggle="tab">Lista de
+						Pedido de Venda</a></li>
+				<li role="presentation"><a href="#dados" aria-controls="dados"
+					role="tab" data-toggle="tab">Dados</a></li>
+				<li role="presentation"><a href="#produtos"
+					aria-controls="produtos" role="tab" data-toggle="tab">Produtos</a></li>
+				<li role="presentation"><a href="#valores"
+					aria-controls="valores" role="tab" data-toggle="tab">Valores</a></li>
+			</ul>
+
+			<!-- Tab panes -->
+			<div class="tab-content">
+				<div role="tabpanel" class="tab-pane active" id="lista">
+					<br> <label>Pesquisar:</label> <input type="text"
+						ng-model="controller.pesquisaPedidoVenda" id="pesquisa"
+						placeholder="Digite aqui..."> <br> <br>
+
+					<div class="container">
+						<table class="table table-striped table-hover">
+							<th class="col-sm-1">Número</th>
+							<th class="col-sm-1">Código</th>
+							<th class="col-sm-4">Nome</th>
+							<th class="col-sm-2">Status</th>
+							<th class="col-sm-2">Emissão</th>
+							<th class="col-sm-2">Total</th>
+							<tr
+								dir-paginate="pedidoVendaTabela in controller.pedidoVendas | filter:controller.pesquisaPedidoVenda |itemsPerPage:8"
+								ng-dblclick="controller.selecionarPedidoVenda(pedidoVendaTabela)">
+								<td>{{pedidoVendaTabela.numeroPedido}}</td>
+								<td>{{pedidoVendaTabela.codigo}}</td>
+								<td>{{pedidoVendaTabela.negociante.nome}}</td>
+								<td>{{pedidoVendaTabela.status == 0 ? "ABERTA" : "" || pedidoVendaTabela.status == 1 ? "CONFIRMADO" : "CANCELADO"}}</td>
+								<td>{{pedidoVendaTabela.dataEmissao}}</td>
+								<td>{{pedidoVendaTabela.totalContabil}}</td>
+								<td>
+									<button type="button" data-toggle="tooltip" title="Excluir ?"
+										ng-click="controller.removeRow(pedidoVendaTabela)"
+										class="btn btn-xs btn-danger">
+										<i class="glyphicon glyphicon-remove-circle"> </i>
+									</button>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+
+				<div role="tabpanel" class="tab-pane" id="dados">
+					<br>
+					<form class="form-horizontal">
+
+						<div class="form-group">
+							<label for="numero" class="col-sm-2 control-label">Número
+								Pedido:</label>
+							<div class="col-sm-2">
+								<input type="text" required
+									ng-model="controller.pedidoVenda.numeroPedido"
+									class="form-control" id="numero" placeholder="Número">
+							</div>
+
+							<label for="status" class="col-sm-1 control-label">Status:</label>
+							<div class="col-sm-5">
+								<select class="form-control" required
+									ng-model="controller.pedidoVenda.statusTela">
+									<option>ABERTO</option>
+									<option>CONFIRMADO</option>
+									<option>CANCELADO</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Vendedor:</label>
+							<div class="col-sm-8">
+								<select class="form-control" required
+									ng-model="controller.pedidoVenda.funcionario"
+									ng-options="funcionario.nome + ' - ' + ' - ' + funcionario.cpf + ' - ' + funcionario.pis + ' - ' + funcionario.cidade for funcionario in controller.funcionarios track by funcionario.id">
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Cliente:</label>
+							<div class="col-sm-8">
+								<select class="form-control" required
+									ng-model="controller.pedidoVenda.negociante"
+									ng-options="negociante.cpfCnpj + ' - ' + negociante.nome + ' - ' +  negociante.municipio.nome for negociante in controller.negociantes track by negociante.id">
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Transportadora:</label>
+							<div class="col-sm-8">
+								<select class="form-control" required
+									ng-model="controller.pedidoVenda.transportadora"
+									ng-options="transportadora.cpfCnpj + ' - ' + transportadora.nome + ' - ' +  transportadora.municipio.nome for transportadora in controller.transportadoras track by transportadora.id">
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Tipo de Cobrança:</label>
+							<div class="col-sm-3">
+								<select class="form-control" required
+									ng-model="controller.pedidoVenda.tipoCobranca"
+									ng-options="tipoCobranca.descricao for tipoCobranca in controller.tipocobrancas track by tipoCobranca.id">
+								</select>
+							</div>
+
+							<label class="col-sm-2 control-label">Conta Bancária:</label>
+							<div class="col-sm-3">
+								<select class="form-control" required
+									ng-model="controller.pedidoVenda.contaBancaria"
+									ng-options="contaBancaria.descricao for contaBancaria in controller.contabancarias track by contaBancaria.id">
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="status" class="col-sm-2 control-label">Finalidade:</label>
+							<div class="col-sm-3">
+								<select class="form-control" required
+									ng-model="controller.pedidoVenda.finalidade">
+									<option>Uso e consumo</option>
+									<option>Revenda</option>
+								</select>
+							</div>
+
+							<label class="col-sm-2 control-label">Condição Pagamento:</label>
+							<!-- 							<div class="col-sm-3"> -->
+							<!-- 								<select class="form-control" required -->
+							<!-- 									ng-model="controller.pedidoVenda.condicaoPagamento" -->
+							<!-- 									ng-options="contaBancaria.descricao for contaBancaria in controller.contabancarias track by contaBancaria.id"> -->
+							<!-- 								</select> -->
+							<!-- 							</div> -->
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Observação do
+								Pedido:</label>
+							<div class="col-sm-8">
+								<textarea class="form-control"
+									ng-model="controller.pedidoVenda.observacaoPedido" rows="2"></textarea>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Observação da Nota:</label>
+							<div class="col-sm-8">
+								<textarea class="form-control"
+									ng-model="controller.pedidoVenda.observacaoNota" rows="2"></textarea>
+							</div>
+						</div>
+
+					</form>
+				</div>
+
+				<div role="tabpanel" class="tab-pane" id="produtos">
+					<br>
+					<div class="btn-toolbar" role="toolbar">
+						<button type="button" class="btn btn-default btn-sm"
+							data-toggle="modal" data-target="#modalProdutoPedidoVenda">
+							<span class="glyphicon glyphicon-search"></span>
+						</button>
+
+						<div class="col-sm-3">
+							<label>Pesquisar:</label> <input type="text"
+								ng-model="controller.pesquisaProdutoPedidoVenda" id="pesquisa"
+								placeholder="Digite aqui..."> <br>
+						</div>
+					</div>
+					<br>
+
+					<div class="container">
+						<table class="table table-striped table-hover">
+							<th class="col-sm-2 ">Código</th>
+							<th class="col-sm-6">Descrição</th>
+							<th class="col-sm-2">EAN</th>
+							<th class="col-sm-2">Preço</th>
+							<tr
+								dir-paginate="produtoPedidoVendaTabela in controller.produtosPedidoVenda | filter:controller.pesquisaProdutoPedidoVenda |itemsPerPage:8">
+								<td>{{produtoPedidoVendaTabela.codigo}}</td>
+								<td>{{produtoPedidoVendaTabela.descricao}}</td>
+								<td>{{produtoPedidoVendaTabela.ean}}</td>
+								<td>R$ {{produtoPedidoVendaTabela.precoVenda}}</td>
+								<td>
+									<button type="button" data-toggle="tooltip" title="Excluir ?"
+										ng-click="controller.removeRowProdutosPedidoVenda(produtoPedidoVendaTabela)"
+										class="btn btn-xs btn-danger">
+										<i class="glyphicon glyphicon-remove-circle"> </i>
+									</button>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+
+				<div class="modal fade .bs-example-modal-lg"
+					id="modalProdutoPedidoVenda" tabindex="-1" role="dialog"
+					aria-labelledby="myModalLabel">
+					<div class="modal-dialog modal-lg" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h4 class="modal-title" id="myModalLabel">Selecionar -
+									Produto para Pedido Venda</h4>
+							</div>
+
+							<div class="container">
+								<br> <label> Pesquisar:</label> <input type="text"
+									ng-model="controller.pesquisaProduto" id="pesquisa"
+									placeholder="Digite aqui..."> <br>
+								<div class="col-md-9">
+									<div class="panel-body">
+										<table class="table table-striped table-hover">
+											<th class="col-sm-2 ">Código</th>
+											<th class="col-sm-6">Descrição</th>
+											<th class="col-sm-2">EAN</th>
+											<th class="col-sm-2">Preço</th>
+											<tr
+												dir-paginate="produtoTabela in controller.produtos | filter:controller.pesquisaProduto |itemsPerPage:8"
+												ng-dblclick="controller.selecionarProduto(produtoTabela)">
+												<td>{{produtoTabela.codigo}}</td>
+												<td>{{produtoTabela.descricao}}</td>
+												<td>{{produtoTabela.ean}}</td>
+												<td>R$ {{produtoTabela.precoVenda}}</td>
+											</tr>
+										</table>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Sair</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div role="tabpanel" class="tab-pane" id="valores">
+					<br>
+					<form class="form-horizontal">
+
+						<div class="panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">ICMS</h3>
+							</div>
+							<br>
+							<div class="form-group">
+								<label for="numero" class="col-sm-2 control-label">Base
+									Calculo:</label>
+								<div class="col-sm-2">
+									<input type="text" required
+										ng-model="controller.pedidoVenda.baseCalculoICMS"
+										class="form-control" id="numero" placeholder="Base">
+								</div>
+								<label for="numero" class="col-sm-1 control-label">Valor:</label>
+								<div class="col-sm-2">
+									<input type="text" required
+										ng-model="controller.pedidoVenda.valorICMS"
+										class="form-control" id="numero" placeholder="Valor ICMS">
+								</div>
+								<label for="numero" class="col-sm-1 control-label">Desoneração:</label>
+								<div class="col-sm-2">
+									<input type="text" required
+										ng-model="controller.pedidoVenda.valorICMSDesonerado"
+										class="form-control" id="numero" placeholder="Desoneração">
+								</div>
+							</div>
+
+							<div class="panel-heading">
+								<h3 class="panel-title">ICMS ST</h3>
+							</div>
+							<br>
+							<div class="form-group">
+								<label for="numero" class="col-sm-2 control-label">Base
+									Calculo:</label>
+								<div class="col-sm-2">
+									<input type="text" required
+										ng-model="controller.pedidoVenda.baseCalculoICMSST"
+										class="form-control" id="numero" placeholder="Base">
+								</div>
+								<label for="numero" class="col-sm-1 control-label">Valor:</label>
+								<div class="col-sm-2">
+									<input type="text" required
+										ng-model="controller.pedidoVenda.valorICMSST"
+										class="form-control" id="numero" placeholder="Valor ICMSST">
+								</div>
+								<div class="col-sm-4">
+									<label> <input type="checkbox"
+										ng-model="controller.negociante.calculoICMSSTDiferencaAliquota">
+										Cálculo por Díf. de Alíquota
+									</label>
+								</div>
+							</div>
+
+							<div class="panel-heading">
+								<h3 class="panel-title">IPI</h3>
+							</div>
+							<br>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Base Calculo:</label>
+								<div class="col-sm-2">
+									<input type="text" required
+										ng-model="controller.pedidoVenda.baseCalculoIPI"
+										class="form-control" placeholder="Base">
+								</div>
+								<label class="col-sm-1 control-label">Valor:</label>
+								<div class="col-sm-2">
+									<input type="text" required
+										ng-model="controller.pedidoVenda.valorIPI"
+										class="form-control" placeholder="Valor IPI">
+								</div>
+							</div>
+
+							<div class="panel-heading">
+								<h3 class="panel-title">Outros</h3>
+							</div>
+							<br>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Produtos:</label>
+								<div class="col-sm-2">
+									<input type="text" required
+										ng-model="controller.pedidoVenda.totalProdutos"
+										class="form-control" placeholder="Produtos">
+								</div>
+								<label class="col-sm-1 control-label">Frete:</label>
+								<div class="col-sm-2">
+									<input type="text" required
+										ng-model="controller.pedidoVenda.valorFrete"
+										class="form-control" placeholder="Frete">
+								</div>
+								<label class="col-sm-1 control-label">Seguro:</label>
+								<div class="col-sm-2">
+									<input type="text" required
+										ng-model="controller.pedidoVenda.valorSeguro"
+										class="form-control" placeholder="Seguro">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Descontos:</label>
+								<div class="col-sm-2">
+									<input type="text" required
+										ng-model="controller.pedidoVenda.valorDesconto"
+										class="form-control" placeholder="Descontos">
+								</div>
+								<label class="col-sm-2 control-label">Valor Contábil:</label>
+								<div class="col-sm-2">
+									<input type="text" required
+										ng-model="controller.pedidoVenda.totalContabil"
+										class="form-control" placeholder="Valor Contábil">
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+
+
+				<div class="form-group" class="form-horizontal">
+					<dir-pagination-controls class="col-sm-6 control-label"
+						max-size="8" direction-links="true" boundary-links="true">
+					</dir-pagination-controls>
+
+					<div align="center" class="form-group"
+						class="col-sm-6 control-label">
+						<button type="submit" ng-click="controller.novo()"
+							class="btn btn-default">Novo</button>
+						<button data-target="#modal-mensagem" data-toggle="modal"
+							ng-disabled="!controller.pedidoVenda.status || !controller.pedidoVenda.numeroPedido || !controller.pedidoVenda.funcionario || !controller.pedidoVenda.negociante || !controller.pedidoVenda.transportadora"
+							type="submit" ng-click="controller.salvar()"
+							class="btn btn-primary">Salvar</button>
+
+						<button type="submit"
+							ng-disabled="!controller.pedidoVenda.status || !controller.pedidoVenda.numeroPedido || !controller.pedidoVenda.funcionario || !controller.pedidoVenda.negociante || !controller.pedidoVenda.transportadora"
+							data-ng-click="controller.deletar(pedidoVendaSelecionado)"
+							class="btn btn-danger">Excluir</button>
+					</div>
+				</div>
+
+				<div class="modal fade" id="modal-mensagem">
+					<div class="modal-dialog">
+						<div
+							ng-class="controller.alerts[0].type === 'success' ? 'alert alert-success' : 'alert alert-danger'"
+							role="alert">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<strong ng-repeat="alert in controller.alerts">{{alert.msg}}</strong>
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+		</div>
+
+	</div>
+	<div ng-include src="'footer.html'"></div>
+
+	<script
+		src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/dirPagination.js"></script>
+	<script src="js/sweetalert-dev.js"></script>
+</body>
+</html>

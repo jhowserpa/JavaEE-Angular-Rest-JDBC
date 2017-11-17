@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="pt-BR" ng-app="negocianteModulo">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="icon" href="img/favicon.ico">
+
+<title>Negociante</title>
+
+<!-- <link href="css/bootstrap.min.css" rel="stylesheet"> -->
+<link href="css/carousel.css" rel="stylesheet">
+<link href="css/estilos.css" rel="stylesheet">
+<link href="css/bootstrap-datepicker.css" rel="stylesheet">
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/bootstrap-select.css">
+<link rel="stylesheet" href="css/sweetalert.css">
+
+<script language="JavaScript" type="text/javascript"
+	src="js/mascaraValidacao.js"></script>
+
+<script src="js/angular.js"></script>
+<script src="controller/negociante.js"></script>
+
+</head>
+<body ng-app="negocianteModulo">
+
+	<div ng-include src="'menu.html'"></div>
+	<div ng-controller="NegocianteController as controller">
+		<div class="container">
+
+			<!-- Nav tabs -->
+			<ul class="nav nav-tabs" role="tablist">
+				<li role="presentation" class="active"><a href="#lista"
+					aria-controls="lista" role="tab" data-toggle="tab">Lista de
+						Negociantes</a></li>
+				<li role="presentation"><a href="#dados" aria-controls="dados"
+					role="tab" data-toggle="tab">Dados Pessoais</a></li>
+				<li role="presentation"><a href="#endereco"
+					aria-controls="endereco" role="tab" data-toggle="tab">Endereço</a></li>
+			</ul>
+
+			<!-- Tab panes -->
+			<div class="tab-content">
+				<div role="tabpanel" class="tab-pane active" id="lista">
+					<div class="form-group" class="form-horizontal">
+						<label class="col-sm-1 control-label">Nome:</label>
+						<div class="col-sm-3">
+							<input type="text" ng-change="controller.search(nome, cpfcnpj)"
+								ng-model="nome" placeholder="Digite o Nome aqui...">
+						</div>
+						<label class="col-sm-1 control-label">CPF/CNPJ:</label>
+						<div class="col-sm-3">
+							<input type="text" ng-change="controller.search(nome, cpfcnpj)"
+								ng-model="cpfcnpj" placeholder="Digite o CPF/CNPJ aqui...">
+						</div>
+					</div>
+					<br> <br>
+
+					<div class="container">
+						<table data-options="tableOptions"
+							class="table table-striped table-hover">
+							<thead>
+								<th>Código</th>
+								<th>Nome</th>
+								<th>CPF/CNPJ</th>
+								<th>Email</th>
+							</thead>
+							<tbody>
+								<tr
+									dir-paginate="negocianteTabela in controller.negociantes |itemsPerPage:8"
+									ng-dblclick="controller.selecionarNegociante(negocianteTabela)">
+									<td>{{negocianteTabela.codigo}}</td>
+									<td class="col-sm-6 ">{{negocianteTabela.nome}}</td>
+									<td class="col-sm-2">{{negocianteTabela.cpfCnpj}}</td>
+									<td class="col-sm-2">{{negocianteTabela.email}}</td>
+									<td>
+										<button type="button" data-toggle="tooltip" title="Excluir ?"
+											ng-click="controller.removeRow(negocianteTabela)"
+											class="btn btn-xs btn-danger">
+											<i class="glyphicon glyphicon-remove-circle"> </i>
+										</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div role="tabpanel" class="tab-pane" id="dados">
+
+					<br>
+					<form name="form1" class="form-horizontal">
+
+						<div class="form-group">
+							<label for="codigo" class="col-sm-2 control-label">Código:</label>
+							<div class="col-sm-2">
+								<input type="text" required
+									ng-model="controller.negociante.codigo" class="form-control"
+									id="codigo" placeholder="Código">
+							</div>
+
+							<label for="fisicajuridica" class="col-sm-1 control-label">Tipo:</label>
+							<div class="col-sm-2">
+								<select required="required" class="form-control"
+									id="fisicajuridica"
+									ng-model="controller.negociante.tipoNegociante">
+									<option value="Física">Física</option>
+									<option value="Jurídica">Jurídica</option>
+
+								</select>
+							</div>
+
+							<label for="status" class="col-sm-1 control-label">Status:</label>
+							<div class="col-sm-2 form-group row"
+								ng-if="controller.negociante.tipoNegociante == 'Física'">
+								<label class="form-check-label"
+									ng-if="controller.negociante.tipoNegociante == 'Física'">
+									<input type="checkbox" class="form-check-input"
+									ng-if="controller.negociante.tipoNegociante == 'Física'"
+									ng-model="controller.negociante.statusCliente"> <span
+									class="custom-control-indicator"></span> Cliente
+								</label>
+							</div>
+							<div class="col-sm-2 form-group row">
+								<label class="form-check-label"
+									ng-if="controller.negociante.tipoNegociante == 'Jurídica'">
+									<input type="checkbox" class="form-check-input"
+									ng-if="controller.negociante.tipoNegociante == 'Jurídica'"
+									ng-model="controller.negociante.statusFornecedor"> <span
+									class="custom-control-indicator"></span> Fornecedor
+								</label>
+							</div>
+							<div class="col-sm-2 form-group row">
+								<label class="form-check-label"
+									ng-if="controller.negociante.tipoNegociante == 'Jurídica'">
+									<input type="checkbox" class="form-check-input"
+									ng-if="controller.negociante.tipoNegociante == 'Jurídica'"
+									ng-model="controller.negociante.statusTransportadora">
+									<span class="custom-control-indicator"></span> Transportadora
+								</label>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="nome" class="col-sm-2 control-label">Nome:</label>
+							<div class="col-sm-8">
+								<input type="text" required
+									ng-model="controller.negociante.nome" class="form-control"
+									id="nome" placeholder="Nome">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Nome Fantasia:</label>
+							<div class="col-sm-4">
+								<input type="text" ng-model="controller.negociante.nomeFantasia"
+									class="form-control" id="nomeFantasia"
+									placeholder="Nome Fantasia">
+							</div>
+
+							<label class="col-sm-1 control-label">Fone:</label>
+							<div class="col-sm-3">
+								<input name="fone" onKeyPress="MascaraTelefone(form1.fone);"
+									maxlength="14" type="text"
+									ng-model="controller.negociante.fone" class="form-control"
+									id="fone" placeholder="Fone">
+								<!-- onBlur="ValidaTelefone(form1.fone);"-->
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Responsavel Cad.:</label>
+							<div class="col-sm-4">
+								<input type="text"
+									ng-model="controller.negociante.responsavelCadastro"
+									class="form-control" id="responsavelCadastro"
+									placeholder="Responsavel Cadastro">
+							</div>
+
+							<label class="col-sm-1 control-label">Cel:</label>
+							<div class="col-sm-3">
+								<input name="cel" onKeyPress="MascaraTelefone(form1.cel);"
+									maxlength="15" type="text" ng-model="controller.negociante.cel"
+									class="form-control" id="cel" placeholder="Celular">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="regimeTributacao" class="col-sm-2 control-label">Regime
+								Trib.:</label>
+							<div class="col-sm-5">
+								<select class="form-control" id="regimeTributacao" required
+									ng-model="controller.negociante.regimeTributacao">
+
+									<option>Regime Tributação Simples Nacional</option>
+									<option>Regime Tributação Lucro Presumido</option>
+									<option>Regime Tributação Lucro Real</option>
+									<option>Regime Tributação Outros</option>
+
+								</select>
+							</div>
+
+							<div class="col-sm-4">
+								<label> <input type="checkbox"
+									ng-model="controller.negociante.contribuinteIcms">
+									Contribuinte ICMS
+								</label>
+							</div>
+						</div>
+
+
+						<div class="form-group">
+							<label for="cpf"
+								ng-if="controller.negociante.tipoNegociante == 'Física'"
+								class="col-sm-2 control-label">CPF:</label> <label for="cnpj"
+								ng-if="controller.negociante.tipoNegociante == 'Jurídica'"
+								class="col-sm-2 control-label">CNPJ:</label>
+
+							<div class="col-sm-3"
+								ng-if="controller.negociante.tipoNegociante == 'Física'">
+								<input ng-model="controller.negociante.cpfCnpj" maxlength="14"
+									type="text" name="cpf" required
+									onKeyPress="MascaraCPF(form1.cpf);" class="form-control"
+									id="cpf" placeholder="CPF">
+							</div>
+							<div class="col-sm-3"
+								ng-if="controller.negociante.tipoNegociante == 'Jurídica'">
+								<input maxlength="18" type="text" name="cnpj" required
+									onKeyPress="MascaraCNPJ(form1.cnpj);"
+									ng-model="controller.negociante.cpfCnpj" class="form-control"
+									id="cnpj" placeholder="CNPJ">
+							</div>
+
+
+
+							<label class="col-sm-2 control-label">RG:</label>
+							<div class="col-sm-3">
+								<input maxlength="12" onKeyPress="MascaraRG(form1.rg);"
+									type="text" ng-model="controller.negociante.rg"
+									class="form-control" id="rg" placeholder="RG">
+							</div>
+						</div>
+
+
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Data Cad.:</label>
+							<div class="col-sm-3">
+								<div class="input-group date">
+									<input ui-date-format="dd/mm/yyyy" name="data"
+										onKeyPress="MascaraData(form1.data);" maxlength="10"
+										onBlur="ValidaDataform1.data);" type="text"
+										ng-model="controller.negociante.dataCadastro"
+										class="form-control" id="data" placeholder="Data Cadastro">
+									<div class="input-group-addon">
+										<span class="glyphicon glyphicon-th"></span>
+									</div>
+								</div>
+							</div>
+
+
+							<!-- 							<label for="status" class="col-sm-2 control-label">Status:</label> -->
+							<!-- 							<div class="col-sm-3"> -->
+							<!-- 								<select required="required" id="status" -->
+							<!-- 									ng-model="controller.status[0].descricao" class="selectpicker" -->
+							<!-- 									multiple> -->
+							<!-- 									<option>Cliente</option> -->
+							<!-- 									<option>Fornecedor</option> -->
+							<!-- 									<option>Transportadora</option> -->
+							<!-- 								</select> -->
+							<!-- 							</div> -->
+
+							<!-- 							<label for="status" class="col-sm-2 control-label">Status:</label> -->
+							<!-- 							<div class="col-sm-3"> -->
+							<!-- 								<select name="browsers" class="form-control" multiple -->
+							<!-- 									id="status" ng-model="controller.status[0].descricao"> -->
+
+							<!-- 									<option value="Cliente">Cliente</option> -->
+							<!-- 									<option value="Fornecedor">Fornecedor</option> -->
+
+							<!-- 								</select> -->
+							<!-- 							</div> -->
+						</div>
+
+						<div class="form-group">
+							<label for="exampleInputEmail1" class="col-sm-2 control-label">Email:</label>
+							<div class="col-sm-3">
+								<input type="email" required
+									ng-model="controller.negociante.email" class="form-control"
+									id="exampleInputEmail1" placeholder="Email">
+							</div>
+
+							<label class="col-sm-2 control-label">Suframa:</label>
+							<div class="col-sm-3">
+								<input type="text" ng-model="controller.negociante.suframa"
+									class="form-control" id="suframa" placeholder="Suframa">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Inscrição Est.:</label>
+							<div class="col-sm-3">
+								<input type="text"
+									ng-model="controller.negociante.inscricaoEstadual"
+									class="form-control" id="inscricaoEstadual"
+									placeholder="Inscrição Estadual">
+							</div>
+
+							<label class="col-sm-2 control-label">Inscrição Mun.:</label>
+							<div class="col-sm-3">
+								<input type="text"
+									ng-model="controller.negociante.inscricaoMunicipal"
+									class="form-control" id="inscricaoMunicipal"
+									placeholder="Inscrição Municipal">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Observação:</label>
+							<div class="col-sm-8">
+								<textarea class="form-control"
+									ng-model="controller.negociante.observacao" rows="2"></textarea>
+							</div>
+
+						</div>
+
+
+						<!-- 						<div class="modal fade" id="modal-mensagem"> -->
+						<!-- 							<div class="modal-dialog"> -->
+						<!-- 								<div class="alert alert-success" role="alert"> -->
+						<!-- 									<button type="button" class="close" data-dismiss="modal" -->
+						<!-- 										aria-label="Close"> -->
+						<!-- 										<span aria-hidden="true">&times;</span> -->
+						<!-- 									</button> -->
+						<!-- 									<strong>Negociante {{controller.negociante.nome}}!</strong> -->
+						<!-- 									salvo com sucesso! -->
+						<!-- 								</div> -->
+						<!-- 							</div> -->
+						<!-- 						</div> -->
+					</form>
+				</div>
+
+				<div role="tabpanel" class="tab-pane" id="endereco">
+					<br>
+					<form name="form2" class="form-horizontal">
+						<div class="panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Dados da entrega</h3>
+							</div>
+							<br>
+
+							<div class="form-group">
+								<label for="endereco" class="col-sm-2 control-label">Endereco:</label>
+								<div class="col-sm-4">
+									<input type="text" required
+										ng-model="controller.negociante.endereco" class="form-control"
+										id="endereco" placeholder="Logradouro">
+								</div>
+
+								<label for="numero" class="col-sm-2 control-label">Número:</label>
+								<div class="col-sm-2">
+									<input type="text" required
+										ng-model="controller.negociante.numero" class="form-control"
+										id="numero" placeholder="Número">
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label for="bairro" class="col-sm-2 control-label">Bairro:</label>
+								<div class="col-sm-4">
+									<input type="text" required
+										ng-model="controller.negociante.bairro" class="form-control"
+										id="bairro" placeholder="Bairro">
+								</div>
+
+								<label class="col-sm-2 control-label">Complemento:</label>
+								<div class="col-sm-2">
+									<input type="text" ng-model="controller.negociante.complemento"
+										class="form-control" id="complemento"
+										placeholder="Complemento">
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label for="uf" class="col-sm-2 control-label">UF:</label>
+								<div class="col-sm-2">
+									<select class="form-control" id="uf" required
+										ng-change="controller.functionCity()"
+										ng-model="controller.negociante.uf"
+										ng-options="uf.sigla for uf in controller.estados track by uf.id">
+									</select>
+								</div>
+
+								<label for="municipio" class="col-sm-2 control-label">Município:</label>
+								<div class="col-sm-4">
+									<select class="form-control" id="municipio" required
+										ng-model="controller.negociante.municipio"
+										ng-options="municipio.nome for municipio in controller.municipios track by municipio.id">
+									</select>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label for="cep" class="col-sm-2 control-label">Cep:</label>
+								<div class="col-sm-2">
+									<input type="text" maxlength="10" required
+										onKeyPress="MascaraCep(form2.cep);"
+										ng-model="controller.negociante.cep" class="form-control"
+										id="cep" placeholder="Cep">
+								</div>
+
+								<label for="pais" class="col-sm-2 control-label">País:</label>
+								<div class="col-sm-4">
+									<select class="form-control" id="pais" required
+										ng-model="controller.negociante.pais"
+										ng-options="pais.descricao for pais in controller.pais track by pais.id">
+
+									</select>
+								</div>
+							</div>
+
+						</div>
+
+						<!-- 						<div class="panel-default"> -->
+						<!-- 							<div class="panel-heading"> -->
+						<!-- 								<h3 class="panel-title">Dados da entrega 2</h3> -->
+						<!-- 							</div> -->
+						<!-- 							<br> -->
+
+						<!-- 							<div class="form-group"> -->
+						<!-- 								<label for="endereco1" class="col-sm-2 control-label">Endereco:</label> -->
+						<!-- 								<div class="col-sm-4"> -->
+						<!-- 									<input type="text" required -->
+						<!-- 										ng-model="controller.enderecos[1].endereco" -->
+						<!-- 										class="form-control" id="endereco1" placeholder="Logradouro"> -->
+						<!-- 								</div> -->
+
+						<!-- 								<label for="numero1" class="col-sm-2 control-label">Número:</label> -->
+						<!-- 								<div class="col-sm-2"> -->
+						<!-- 									<input type="text" required -->
+						<!-- 										ng-model="controller.enderecos[1].numero" class="form-control" -->
+						<!-- 										id="numero1" placeholder="Número"> -->
+						<!-- 								</div> -->
+						<!-- 							</div> -->
+
+						<!-- 							<div class="form-group"> -->
+						<!-- 								<label for="bairro1" class="col-sm-2 control-label">Bairro:</label> -->
+						<!-- 								<div class="col-sm-4"> -->
+						<!-- 									<input type="text" required -->
+						<!-- 										ng-model="controller.enderecos[1].bairro" class="form-control" -->
+						<!-- 										id="bairro1" placeholder="Bairro"> -->
+						<!-- 								</div> -->
+
+						<!-- 								<label for="complemento1" class="col-sm-2 control-label">Complemento:</label> -->
+						<!-- 								<div class="col-sm-2"> -->
+						<!-- 									<input type="text" required -->
+						<!-- 										ng-model="controller.enderecos[1].complemento" -->
+						<!-- 										class="form-control" id="complemento1" -->
+						<!-- 										placeholder="Complemento"> -->
+						<!-- 								</div> -->
+						<!-- 							</div> -->
+
+						<!-- 							<div class="form-group"> -->
+						<!-- 								<label for="uf1" class="col-sm-2 control-label">UF:</label> -->
+						<!-- 								<div class="col-sm-2"> -->
+						<!-- 									<select class="form-control" id="uf1" -->
+						<!-- 										ng-change="controller.functionCity2()" -->
+						<!-- 										ng-model="controller.enderecos[1].municipio.uf.sigla"> -->
+
+						<!-- 										<option>RO</option> -->
+						<!-- 										<option>AC</option> -->
+						<!-- 										<option>AM</option> -->
+						<!-- 										<option>RR</option> -->
+						<!-- 										<option>PA</option> -->
+						<!-- 										<option>AP</option> -->
+						<!-- 										<option>TO</option> -->
+						<!-- 										<option>MA</option> -->
+						<!-- 										<option>PI</option> -->
+						<!-- 										<option>CE</option> -->
+						<!-- 										<option>RN</option> -->
+						<!-- 										<option>PB</option> -->
+						<!-- 										<option>PE</option> -->
+						<!-- 										<option>AL</option> -->
+						<!-- 										<option>SE</option> -->
+						<!-- 										<option>BA</option> -->
+						<!-- 										<option>MG</option> -->
+						<!-- 										<option>ES</option> -->
+						<!-- 										<option>RJ</option> -->
+						<!-- 										<option>SP</option> -->
+						<!-- 										<option>PR</option> -->
+						<!-- 										<option>SC</option> -->
+						<!-- 										<option>RS</option> -->
+						<!-- 										<option>MS</option> -->
+						<!-- 										<option>MT</option> -->
+						<!-- 										<option>GO</option> -->
+						<!-- 										<option>DF</option> -->
+						<!-- 										<option>EX</option> -->
+
+						<!-- 									</select> -->
+						<!-- 								</div> -->
+
+						<!-- 								<label for="municipio1" class="col-sm-2 control-label">Município:</label> -->
+						<!-- 								<div class="col-sm-4"> -->
+						<!-- 									<select class="form-control" for="municipio1" -->
+						<!-- 										ng-model="controller.enderecos[1].municipio" -->
+						<!-- 										ng-options="municipio.nome for municipio in controller.municipios1 track by municipio.id"> -->
+						<!-- 									</select> -->
+						<!-- 								</div> -->
+						<!-- 							</div> -->
+
+						<!-- 							<div class="form-group"> -->
+						<!-- 								<label for="pais1" class="col-sm-2 control-label">País:</label> -->
+						<!-- 								<div class="col-sm-4"> -->
+						<!-- 									<select class="form-control" id="pais1" -->
+						<!-- 										ng-model="controller.enderecos[1].municipio.pais" -->
+						<!-- 										ng-options="pais.descricao for pais in controller.pais1 track by pais.id"> -->
+
+						<!-- 									</select> -->
+						<!-- 								</div> -->
+						<!-- 							</div> -->
+				</div>
+				</form>
+			</div>
+
+			<div class="form-group" class="form-horizontal">
+				<dir-pagination-controls class="col-sm-6 control-label" max-size="8"
+					direction-links="true" boundary-links="true">
+				</dir-pagination-controls>
+
+				<div align="center" class="form-group"
+					class="col-sm-4 control-label">
+					<button type="submit" ng-click="controller.novo()"
+						class="btn btn-default">Novo</button>
+
+					<button data-target="#modal-mensagem" data-toggle="modal"
+						ng-disabled="!controller.negociante.codigo || !controller.negociante.tipoNegociante || !controller.negociante.nome || !controller.negociante.email || !controller.negociante.regimeTributacao"
+						type="submit" ng-click="controller.salvar()"
+						class="btn btn-primary btn-large">Salvar</button>
+
+					<button type="submit" data-ng-click="controller.deletar()"
+						ng-disabled="!controller.negociante.codigo || !controller.negociante.tipoNegociante || !controller.negociante.nome || !controller.negociante.email || !controller.negociante.regimeTributacao"
+						class="btn btn-danger" ng-click="open()">Excluir</button>
+
+				</div>
+			</div>
+
+			<div class="modal fade" id="modal-mensagem">
+				<div class="modal-dialog">
+					<div
+						ng-class="controller.alerts[0].type === 'success' ? 'alert alert-success' : 'alert alert-danger'"
+						role="alert">
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+						<strong ng-repeat="alert in controller.alerts">{{alert.msg}}</strong>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	</div>
+	<div ng-include src="'footer.html'"></div>
+
+	<script
+		src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<!-- 	<script src="js/bootstrap.min.js"></script> -->
+	<script src="js/bootstrap-datepicker.min.js"></script>
+	<script src="js/bootstrap-datepicker.pt-BR.min.js"></script>
+
+	<script type="text/javascript"> 
+	  		$('#data').datepicker({ 
+	 			format: 'dd/mm/yyyy',
+	 			language: 'pt-BR',
+	  			startDate: '+0d', 
+	  		});
+		</script>
+
+	<script>
+		  $(document).ready(function () {
+			    var mySelect = $('#first-disabled2');
+			
+			    $('#special').on('click', function () {
+			      mySelect.find('option:selected').prop('disabled', true);
+			      mySelect.selectpicker('refresh');
+			    });
+			
+			    $('#special2').on('click', function () {
+			      mySelect.find('option:disabled').prop('disabled', false);
+			      mySelect.selectpicker('refresh');
+			    });
+			
+// 			    $('#basic2').selectpicker({
+// 			        liveSearch: true,
+// 			        maxOptions: 1
+// 			      });
+		
+		  });
+	</script>
+
+	<script>
+		$(document).ready(function(){
+  	 	 	$('[data-toggle="tooltip"]').tooltip(); 
+		});
+	</script>
+
+	<script
+		src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script
+		src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<!-- 	<script src="js/bootstrap-select.min.js"></script> -->
+	<script src="js/dirPagination.js"></script>
+	<script src="js/sweetalert-dev.js"></script>
+</body>
+</html>
