@@ -12,7 +12,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 public class MyApplication extends ResourceConfig {
 
 	public MyApplication() {
-		packages("br.com.holder.controller");
+		packages("br.com.secretariadeobra.controller");
 	}
 
 }
